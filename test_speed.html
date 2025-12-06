@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Search Engine - Speed Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .speed-indicator {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .speed-good {
+            color: #4CAF50;
+        }
+        .speed-warning {
+            color: #ff9800;
+        }
+        .speed-bad {
+            color: #f44336;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .message-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        .message-header {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .message-content {
+            color: #666;
+            margin-top: 5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #f44336;
+        }
+        .url-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Aurora Search Engine - Speed Test</h1>
+        
+        <div class="input-group">
+            <label for="apiUrl">API Base URL:</label>
+            <input type="text" id="apiUrl" placeholder="https://your-app.onrender.com" value="http://localhost:8000">
+            <small style="color: #666;">Enter your deployed API URL here</small>
+        </div>
+        
+        <div class="input-group">
+            <label for="query">Search Query:</label>
+            <input type="text" id="query" placeholder="Enter search query" value="hello">
+        </div>
+        
+        <div class="input-group">
+            <label for="iterations">Number of Tests:</label>
+            <input type="number" id="iterations" value="10" min="1" max="100">
+        </div>
+        
+        <button onclick="runSingleTest()">⚡ Single Test</button>
+        <button onclick="runMultipleTests()">📊 Multiple Tests</button>
+        <button onclick="clearResults()">🗑️ Clear</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function runSingleTest() {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const query = document.getElementById('query').value.trim();
+            
+            if (!apiUrl || !query) {
+                showError('Please enter both API URL and query');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">⏳ Testing...</div>';
+            
+            const searchUrl = `${apiUrl}/search?query=${encodeURIComponent(query)}`;
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch(searchUrl);
+                const endTime = performance.now();
+                const responseTime = endTime - startTime;
+                
+                const data = await response.json();
+                
+                displaySingleResult(responseTime, data, searchUrl);
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            }
+        }
+        
+        async function runMultipleTests() {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const query = document.getElementById('query').value.trim();
+            const iterations = parseInt(document.getElementById('iterations').value) || 10;
+            
+            if (!apiUrl || !query) {
+                showError('Please enter both API URL and query');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">⏳ Running ' + iterations + ' tests...</div>';
+            
+            const searchUrl = `${apiUrl}/search?query=${encodeURIComponent(query)}`;
+            const times = [];
+            let errors = 0;
+            
+            for (let i = 0; i < iterations; i++) {
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(searchUrl);
+                    const endTime = performance.now();
+                    const responseTime = endTime - startTime;
+                    
+                    if (response.ok) {
+                        times.push(responseTime);
+                    } else {
+                        errors++;
+                    }
+                } catch (error) {
+                    errors++;
+                }
+            }
+            
+            if (times.length > 0) {
+                displayMultipleResults(times, errors, searchUrl);
+            } else {
+                showError('All tests failed. Check your API URL.');
+            }
+        }
+        
+        function displaySingleResult(responseTime, data, url) {
+            const resultsDiv = document.getElementById('results');
+            const speedClass = responseTime < 100 ? 'speed-good' : (responseTime < 200 ? 'speed-warning' : 'speed-bad');
+            const status = responseTime < 100 ? '✅ Meets requirement' : '❌ Exceeds 100ms';
+            const bonus = responseTime < 30 ? '🎯 BONUS: Meets 30ms target!' : '';
+            
+            resultsDiv.innerHTML = `
+                <div class="results">
+                    <h2>Single Test Results</h2>
+                    <div class="url-display">URL: ${url}</div>
+                    <div class="speed-indicator ${speedClass}">${responseTime.toFixed(2)} ms</div>
+                    <div style="text-align: center; margin: 10px 0;">
+                        <strong>${status}</strong> ${bonus ? '<br>' + bonus : ''}
+                    </div>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${responseTime.toFixed(2)}</div>
+                            <div class="stat-label">Response Time (ms)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${data.total || 0}</div>
+                            <div class="stat-label">Total Results</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${data.items ? data.items.length : 0}</div>
+                            <div class="stat-label">Results Returned</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${data.page || 1}</div>
+                            <div class="stat-label">Page</div>
+                        </div>
+                    </div>
+                    ${data.items && data.items.length > 0 ? `
+                        <h3 style="margin-top: 30px;">Sample Results:</h3>
+                        ${data.items.slice(0, 5).map(item => `
+                            <div class="message-item">
+                                <div class="message-header">${item.user_name} (${item.user_id})</div>
+                                <div class="message-content">${item.message.substring(0, 100)}${item.message.length > 100 ? '...' : ''}</div>
+                            </div>
+                        `).join('')}
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function displayMultipleResults(times, errors, url) {
+            const resultsDiv = document.getElementById('results');
+            const mean = times.reduce((a, b) => a + b, 0) / times.length;
+            const min = Math.min(...times);
+            const max = Math.max(...times);
+            const sorted = [...times].sort((a, b) => a - b);
+            const median = sorted[Math.floor(sorted.length / 2)];
+            const p95 = sorted[Math.floor(sorted.length * 0.95)];
+            
+            const speedClass = mean < 100 ? 'speed-good' : (mean < 200 ? 'speed-warning' : 'speed-bad');
+            const status = mean < 100 ? '✅ Meets requirement' : '❌ Exceeds 100ms';
+            const bonus = mean < 30 ? '🎯 BONUS: Meets 30ms target!' : '';
+            
+            resultsDiv.innerHTML = `
+                <div class="results">
+                    <h2>Multiple Test Results (${times.length} successful, ${errors} errors)</h2>
+                    <div class="url-display">URL: ${url}</div>
+                    <div class="speed-indicator ${speedClass}">${mean.toFixed(2)} ms</div>
+                    <div style="text-align: center; margin: 10px 0;">
+                        <strong>Average: ${status}</strong> ${bonus ? '<br>' + bonus : ''}
+                    </div>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${mean.toFixed(2)}</div>
+                            <div class="stat-label">Mean (ms)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${median.toFixed(2)}</div>
+                            <div class="stat-label">Median (ms)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${min.toFixed(2)}</div>
+                            <div class="stat-label">Min (ms)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${max.toFixed(2)}</div>
+                            <div class="stat-label">Max (ms)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${p95.toFixed(2)}</div>
+                            <div class="stat-label">95th Percentile (ms)</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<div class="error">${message}</div>`;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
