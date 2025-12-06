@@ -46,3 +46,6 @@ htmlcov/
 
 # Logs
 *.log
+
+# Data files
+messages.json
