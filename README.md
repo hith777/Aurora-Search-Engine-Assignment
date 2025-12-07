@@ -2,6 +2,14 @@
 
 A simple, fast search engine API service built with FastAPI that indexes and searches messages from an external data source.
 
+## 🚀 Live Demo
+
+**Deployed Service:** https://aurora-search-engine-5bxb.onrender.com
+
+- **Interactive API Documentation:** https://aurora-search-engine-5bxb.onrender.com/docs
+- **Health Check:** https://aurora-search-engine-5bxb.onrender.com/
+- **Example Search:** https://aurora-search-engine-5bxb.onrender.com/search?query=hello
+
 ## Features
 
 - Fast search across message content and user names
@@ -24,7 +32,7 @@ Search messages by query string.
 
 **Example:**
 ```bash
-curl "https://your-service.onrender.com/search?query=hello&page=1&size=10"
+curl "https://aurora-search-engine-5bxb.onrender.com/search?query=hello&page=1&size=10"
 ```
 
 **Response:**
@@ -119,7 +127,9 @@ The service will automatically:
 - Start the FastAPI application
 - Index messages on startup
 
-## Design Notes
+## 📋 Bonus 1: Design Notes
+
+This section describes several alternative approaches we considered for building the search engine, along with the rationale for our chosen implementation.
 
 ### Alternative Approaches Considered
 
@@ -243,7 +253,11 @@ The current implementation uses:
 - **In-memory storage**: All data in RAM for fastest access
 - **Automatic indexing on startup**: Messages are fetched and indexed when the service starts
 
-## Performance Optimization: Reducing Latency to 30ms
+## 🎯 Bonus 2: Data Insights - Reducing Latency to 30ms
+
+The current implementation targets <100ms response time and successfully meets this requirement. This section explains how we can further optimize the system to achieve the 30ms bonus target.
+
+### Performance Optimization Strategies
 
 The current implementation targets <100ms response time. Here are strategies to reduce latency to 30ms:
 
@@ -436,19 +450,35 @@ profiler.print_stats()
 
 ### Running Tests
 
-```bash
-# Install test dependencies
-pip install pytest pytest-asyncio httpx
+The project includes comprehensive test utilities in the `tests/` directory:
 
-# Run tests
-pytest
+```bash
+# Run comprehensive API test suite
+python tests/test_api.py
+
+# Run performance tests
+python tests/test_performance.py --query "hello" --iterations 10
+
+# Test deployed API
+python tests/test_performance.py --url https://aurora-search-engine-5bxb.onrender.com
+
+# Quick API test (bash)
+./tests/test_api.sh
+
+# View messages from API
+python tests/view_messages_simple.py
+
+# Browser-based speed test
+# Open tests/test_speed.html in your browser
 ```
+
+See `tests/README.md` for detailed documentation of all test utilities.
 
 ### Code Structure
 
 ```
 .
-├── app/
+├── app/                     # Core application code
 │   ├── __init__.py
 │   ├── main.py              # FastAPI app and routes
 │   ├── models.py            # Pydantic models
@@ -456,10 +486,19 @@ pytest
 │       ├── __init__.py
 │       ├── data_fetcher.py  # Fetch from /messages API
 │       └── indexer.py       # Indexing and search logic
-├── requirements.txt
+├── tests/                   # Test utilities and scripts
+│   ├── README.md            # Test documentation
+│   ├── test_api.py          # Comprehensive API test suite
+│   ├── test_performance.py  # Performance testing
+│   ├── test_api.sh          # Bash test script
+│   ├── test_deployed.sh     # Deployed API test
+│   ├── test_speed.html      # Browser-based speed test
+│   ├── view_messages.py     # Message viewer utility
+│   └── view_messages_simple.py  # Simple message viewer
+├── requirements.txt         # Python dependencies
 ├── render.yaml              # Render deployment config
 ├── Dockerfile               # Container configuration
-└── README.md
+└── README.md                # This file
 ```
 
 ## License

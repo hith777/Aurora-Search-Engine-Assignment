@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 """
 Simple script to quickly view all messages from the API.
-Usage: python view_messages_simple.py
+Usage: python tests/view_messages_simple.py
 """
+import sys
+from pathlib import Path
+
+# Add parent directory to path to import app modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import httpx
 import json
 import asyncio
