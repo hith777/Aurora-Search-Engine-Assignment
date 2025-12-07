@@ -2,7 +2,7 @@
 
 A simple, fast search engine API service built with FastAPI that indexes and searches messages from an external data source.
 
-## 🚀 Live Demo
+## Demo
 
 **Deployed Service:** https://aurora-search-engine-5bxb.onrender.com
 
@@ -127,7 +127,7 @@ The service will automatically:
 - Start the FastAPI application
 - Index messages on startup
 
-## 📋 Bonus 1: Design Notes
+## Bonus 1: Design Notes
 
 This section describes several alternative approaches we considered for building the search engine, along with the rationale for our chosen implementation.
 
@@ -500,7 +500,3 @@ See `tests/README.md` for detailed documentation of all test utilities.
 ├── Dockerfile               # Container configuration
 └── README.md                # This file
 ```
-
-## License
-
-This project is part of an assignment.
