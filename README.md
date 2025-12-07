@@ -253,7 +253,7 @@ The current implementation uses:
 - **In-memory storage**: All data in RAM for fastest access
 - **Automatic indexing on startup**: Messages are fetched and indexed when the service starts
 
-## 🎯 Bonus 2: Data Insights - Reducing Latency to 30ms
+## Bonus 2: Data Insights - Reducing Latency to 30ms
 
 The current implementation targets <100ms response time and successfully meets this requirement. This section explains how we can further optimize the system to achieve the 30ms bonus target.
 
